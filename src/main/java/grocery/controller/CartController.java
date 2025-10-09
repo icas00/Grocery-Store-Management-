@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * REST Controller to manage user cart items.
- */
+
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
@@ -22,9 +20,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    /**
-     * Add item to cart.
-     */
+    
     @PostMapping("/add")
     public ResponseEntity<String> addToCart(@AuthenticationPrincipal UserDetails userDetails,
                                             @Valid @RequestBody CartItemDTO cartItemDTO) {
@@ -32,9 +28,7 @@ public class CartController {
         return ResponseEntity.ok("Item added to cart");
     }
 
-    /**
-     * Remove item from cart.
-     */
+    
     @DeleteMapping("/remove/{productId}")
     public ResponseEntity<String> removeFromCart(@AuthenticationPrincipal UserDetails userDetails,
                                                  @PathVariable Long productId) {
@@ -42,9 +36,7 @@ public class CartController {
         return ResponseEntity.ok("Item removed from cart");
     }
 
-    /**
-     * Get all cart items for user.
-     */
+    
     @GetMapping
     public ResponseEntity<List<CartItemDTO>> getCartItems(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(cartService.getCartItems(userDetails.getUsername()));
