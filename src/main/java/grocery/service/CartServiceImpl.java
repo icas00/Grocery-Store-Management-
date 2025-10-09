@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Implementation of CartService to manage cart items.
- */
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,9 +26,7 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
 
-    /**
-     * Add product to user's cart or update quantity.
-     */
+    
     @Override
     public void addToCart(String username, CartItemDTO cartItemDTO) {
         User user = userRepository.findByUsername(username)
@@ -52,9 +48,7 @@ public class CartServiceImpl implements CartService {
         cartItemRepository.save(cartItem);
     }
 
-    /**
-     * Remove product from user's cart.
-     */
+    
     @Override
     public void removeFromCart(String username, Long productId) {
         User user = userRepository.findByUsername(username)
@@ -66,9 +60,7 @@ public class CartServiceImpl implements CartService {
         cartItemRepository.delete(cartItem);
     }
 
-    /**
-     * Get all cart items for a user.
-     */
+    
     @Override
     public List<CartItemDTO> getCartItems(String username) {
         User user = userRepository.findByUsername(username)
