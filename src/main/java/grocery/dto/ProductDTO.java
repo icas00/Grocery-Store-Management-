@@ -5,9 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-/**
- * DTO for product create/update requests and responses.
- */
+
 @Data
 public class ProductDTO {
 
