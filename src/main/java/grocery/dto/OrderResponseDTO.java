@@ -7,9 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * DTO for order response with order details and items.
- */
+
 @Data
 public class OrderResponseDTO {
 
