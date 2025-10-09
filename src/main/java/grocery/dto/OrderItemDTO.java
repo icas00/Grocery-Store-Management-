@@ -4,9 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-/**
- * DTO for individual order item details.
- */
+
 @Data
     public class OrderItemDTO {
 
