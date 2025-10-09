@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * REST Controller for product management.
- */
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -21,25 +19,18 @@ public class ProductController {
 
     private final ProductService productService;
 
-    /**
-     * Get all products - accessible to all users.
-     */
+    
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    /**
-     * Get product by id.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    /**
-     * Create new product - Admin only.
-     */
+    
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
@@ -47,9 +38,7 @@ public class ProductController {
         return ResponseEntity.status(201).body(created);
     }
 
-    /**
-     * Update product - Admin only.
-     */
+    
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id,
@@ -57,9 +46,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, productDTO));
     }
 
-    /**
-     * Delete product - Admin only.
-     */
+    
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
