@@ -9,9 +9,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
-/**
- * Utility class for generating and validating JWT tokens.
- */
+
 @Component
 public class JwtUtil {
 
@@ -25,9 +23,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    /**
-     * Generate JWT token for username.
-     */
+    
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
@@ -40,9 +36,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * Get username from JWT token.
-     */
+    
     public String getUsernameFromJwt(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -53,9 +47,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    /**
-     * Validate JWT token.
-     */
+    
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
