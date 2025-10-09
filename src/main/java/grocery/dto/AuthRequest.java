@@ -3,9 +3,7 @@ package grocery.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * DTO for user login request.
- */
+
 @Data
 public class AuthRequest {
 
