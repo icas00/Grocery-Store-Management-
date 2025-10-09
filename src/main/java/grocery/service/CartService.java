@@ -5,9 +5,7 @@ import grocery.dto.CartItemDTO;
 
 import java.util.List;
 
-/**
- * Service interface for managing user cart.
- */
+
 public interface CartService {
 
     void addToCart(String username, CartItemDTO cartItemDTO);
