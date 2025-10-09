@@ -20,9 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Implementation of AuthService that handles login and registration logic.
- */
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -33,9 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    /**
-     * Authenticate user and generate JWT token.
-     */
+    
     @Override
     public AuthResponse login(AuthRequest loginRequest) {
         try {
@@ -53,9 +49,7 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(token);
     }
 
-    /**
-     * Register a new user with role CUSTOMER.
-     */
+    
     @Override
     public void register(RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
