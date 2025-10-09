@@ -6,9 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-/**
- * Repository interface for Orders.
- */
+
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUser(User user);
