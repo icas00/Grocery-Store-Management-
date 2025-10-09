@@ -1,8 +1,6 @@
 package grocery.exception;
 
-/**
- * Exception thrown when requested resource is not found.
- */
+
 public class ResourceNotFoundException extends RuntimeException {
 
     public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
