@@ -62,3 +62,4 @@ public class ProductController {
         repo.deleteById(id); return ResponseEntity.ok(Map.of("message","deleted"));
     }
 }
+// temporary log added for testing
