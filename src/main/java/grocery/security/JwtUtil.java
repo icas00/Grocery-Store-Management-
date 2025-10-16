@@ -1,71 +1,40 @@
 package grocery.security;
 
-
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.security.Key;
-import java.util.Date;
-
-/**
- * Utility class for generating and validating JWT tokens.
- */
+import java.util.*;
 @Component
 public class JwtUtil {
+    @Value("${jwt.secret}") private String secret;
+    @Value("${jwt.expiration-ms}") private long expMs;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${jwt.expirationMs}")
-    private int jwtExpirationMs;
-
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
-    }
-
-    /**
-     * Generate JWT token for username.
-     */
-    public String generateToken(String username) {
+    public String generateToken(String username, Set<String> roles){
+        String rolesCsv = String.join(",", roles);
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-
         return Jwts.builder()
                 .setSubject(username)
+                .claim("roles", rolesCsv)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(now.getTime() + expMs))
+                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
 
-    /**
-     * Get username from JWT token.
-     */
-    public String getUsernameFromJwt(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+    public boolean validate(String token){
+        try {
+            Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
+            return true;
+        } catch (JwtException ex){ return false; }
     }
 
-    /**
-     * Validate JWT token.
-     */
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            // Invalid token
-        }
-        return false;
+    public String extractUsername(String token){
+        return Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Set<String> extractRoles(String token){
+        String r = (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody().get("roles");
+        if(r==null || r.isBlank()) return Set.of();
+        return new HashSet<>(Arrays.asList(r.split(",")));
     }
 }

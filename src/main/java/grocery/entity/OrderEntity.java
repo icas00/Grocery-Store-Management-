@@ -1,3 +1,4 @@
+package grocery.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

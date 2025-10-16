@@ -1,3 +1,4 @@
+package grocery.service;
 
 import grocery.entity.Product;
 import grocery.repository.ProductRepository;

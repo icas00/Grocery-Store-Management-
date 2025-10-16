@@ -1,69 +1,64 @@
 package grocery.controller;
 
-
-import grocery.dto.ProductDTO;
-import grocery.service.ProductService;
-import jakarta.validation.Valid;
+import grocery.entity.Product;
+import grocery.repository.ProductRepository;
+import grocery.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-/**
- * REST Controller for product management.
- */
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
+    private final ProductRepository repo;
+    private final JwtUtil jwtUtil;
 
-    private final ProductService productService;
-
-    /**
-     * Get all products - accessible to all users.
-     */
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
-    }
+    public List<Product> all(){ return repo.findAll(); }
 
-    /**
-     * Get product by id.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProductById(id));
-    }
-
-    /**
-     * Create new product - Admin only.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
-        ProductDTO created = productService.createProduct(productDTO);
-        return ResponseEntity.status(201).body(created);
+    public ResponseEntity<?> add(@RequestHeader(value="Authorization", required=false) String auth,
+                                 @RequestBody Product p){
+
+        if(auth==null || !auth.startsWith("Bearer ")) return ResponseEntity.status(401).body("login required");
+        String token = auth.substring(7);
+        if(!jwtUtil.validate(token)) return ResponseEntity.status(401).body("invalid token");
+        if(!jwtUtil.extractRoles(token).contains("ROLE_ADMIN")) return ResponseEntity.status(403).body("admin only");
+        Product saved = repo.save(p);
+        return ResponseEntity.ok(saved);
     }
 
-    /**
-     * Update product - Admin only.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOne(@PathVariable Long id){
+        Optional<Product> p = repo.findById(id);
+        if(p.isEmpty()) return ResponseEntity.status(404).body("not found");
+        return ResponseEntity.ok(p.get());
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id,
-                                                    @Valid @RequestBody ProductDTO productDTO) {
-        return ResponseEntity.ok(productService.updateProduct(id, productDTO));
+    public ResponseEntity<?> update(@RequestHeader(value="Authorization", required=false) String auth,
+                                    @PathVariable Long id, @RequestBody Product req){
+        
+        if(auth==null || !auth.startsWith("Bearer ")) return ResponseEntity.status(401).body("login required");
+        String token = auth.substring(7); if(!jwtUtil.validate(token)) return ResponseEntity.status(401).body("invalid token");
+        if(!jwtUtil.extractRoles(token).contains("ROLE_ADMIN")) return ResponseEntity.status(403).body("admin only");
+        Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("not found"));
+        p.setName(req.getName()); p.setPrice(req.getPrice()); p.setQuantity(req.getQuantity());
+        p.setDescription(req.getDescription()); p.setCategory(req.getCategory());
+        repo.save(p);
+        return ResponseEntity.ok(p);
     }
 
-    /**
-     * Delete product - Admin only.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.ok("Product deleted successfully");
+    public ResponseEntity<?> delete(@RequestHeader(value="Authorization", required=false) String auth,
+                                    @PathVariable Long id){
+        if(auth==null || !auth.startsWith("Bearer ")) return ResponseEntity.status(401).body("login required");
+        String token = auth.substring(7); if(!jwtUtil.validate(token)) return ResponseEntity.status(401).body("invalid token");
+        if(!jwtUtil.extractRoles(token).contains("ROLE_ADMIN")) return ResponseEntity.status(403).body("admin only");
+        repo.deleteById(id); return ResponseEntity.ok(Map.of("message","deleted"));
     }
 }

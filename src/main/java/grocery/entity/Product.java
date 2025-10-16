@@ -3,29 +3,18 @@ package grocery.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Entity
-@Table(name = "products")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name="products")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productId;
-
-    @Column(nullable = false, length = 100)
-    private String productName;
-
-    @Column(length = 50)
+    @Column(name = "product_id")
+    private Long id;
+    @Column(name = "product_name")
+    private String name;
+    private String description;
+    private double price;
+    private int quantity;
     private String category;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
-
-    @Column(nullable = false)
-    private Integer stockQuantity;
 }

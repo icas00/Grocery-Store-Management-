@@ -75,11 +75,14 @@
 		</dependency>
 
 		<!-- Lombok -->
+		<!-- pom.xml -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.34</version> <!-- Must be this or newer -->
+			<scope>provided</scope>
 		</dependency>
+
 
 		<!-- Validation API -->
 		<dependency>

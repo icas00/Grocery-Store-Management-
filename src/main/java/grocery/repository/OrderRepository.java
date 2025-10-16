@@ -1,15 +1,8 @@
 package grocery.repository;
 
-import grocery.entity.Order;
-import grocery.entity.User;
+import grocery.entity.OrderEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
-
-/**
- * Repository interface for Orders.
- */
-public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    List<Order> findByUser(User user);
+public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
+    List<OrderEntity> findByUsername(String username);
 }

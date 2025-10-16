@@ -1,44 +1,44 @@
 package grocery.controller;
 
-
-import grocery.dto.AuthRequest;
-import grocery.dto.AuthResponse;
-import grocery.dto.RegisterRequest;
-import grocery.service.AuthService;
-import jakarta.validation.Valid;
+import grocery.entity.User;
+import grocery.repository.UserRepository;
+import grocery.security.JwtUtil;
+import grocery.service.SimpleUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
-/**
- * REST Controller for user authentication and registration.
- */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final SimpleUserService userService;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    private final AuthService authService;
-
-    /**
-     * User login endpoint.
-     */
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest loginRequest) {
-        AuthResponse response = authService.login(loginRequest);
-        return ResponseEntity.ok(response);
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String,String> body){
+        // simple beginner validation
+        String username = body.get("username");
+        String password = body.get("password");
+        boolean isAdmin = "true".equals(body.get("admin"));
+        User u = userService.register(username, password, isAdmin);
+        return ResponseEntity.ok(Map.of("message","registered","username",u.getUsername()));
     }
 
-    /**
-     * User registration endpoint.
-     */
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        authService.register(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String,String> body){
+        String username = body.get("username");
+        String pass = body.get("password");
+        var user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("user not found"));
+
+        if(!new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().matches(pass, user.getPassword())){
+            return ResponseEntity.status(401).body(Map.of("error","invalid"));
+        }
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRoles());
+
+        System.out.println("[DEBUG] Generated token for " + username + ": " + token.substring(0, Math.min(20, token.length())) + "...");
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }
