@@ -43,7 +43,7 @@ Built as a **final-year project** and inspired by real-world business needs.
 - **Payment Gateway:** Razorpay  
 - **Maps API:** Google Maps Geocoding  
 - **Build Tool:** Maven  
-- **Tools:** Git, Postman, Docker (optional)  
+- **Tools:** Git, Postman
 
 ---
 
