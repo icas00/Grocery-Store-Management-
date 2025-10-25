@@ -1,6 +1,6 @@
 #  Online Grocery Store Management System
 
-A **Spring Boot + MySQL backend project** for managing a real-world Kirana (grocery) store in Daund.  
+A **Spring Boot + MySQL backend project** for managing a real-world grocery store.  
 The system enables product browsing, cart management, secure payments via **Razorpay**, and store location integration using **Google Maps API**.  
 
 Built as a **final-year project** and inspired by real-world business needs.  
