@@ -37,7 +37,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error","invalid"));
         }
         String token = jwtUtil.generateToken(user.getUsername(), user.getRoles());
-
+    
         System.out.println("[DEBUG] Generated token for " + username + ": " + token.substring(0, Math.min(20, token.length())) + "...");
         return ResponseEntity.ok(Map.of("token", token));
     }

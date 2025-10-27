@@ -12,40 +12,45 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final JwtAuthFilter jwtAuthFilter; // your JWT filter
+    private final JwtAuthFilter jwtAuthFilter; // filter which reads token
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // just using BCrypt for now safest and easy
         return new BCryptPasswordEncoder();
     }
 
-    // Required for AuthenticationManager injection in AuthController
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        //  used in auth controller to check login password
         return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        // public endpoints
-                        .requestMatchers("/auth/**", "/h2-console/**", "/actuator/**").permitAll()
-                        // everything else requires authentication
-                        .anyRequest().authenticated()
-                );
 
-        // allow H2 console frames
+        http.csrf().disable(); // TODO: enable later if we learn how 😅
+
+        // allow products to be shown publicly
+        http.authorizeHttpRequests(auth -> auth
+                //login/register must be open to all users
+                .requestMatchers("/auth/**").permitAll()
+
+                .requestMatchers("/products/**").permitAll()
+
+                // everything else needs login for now
+                .anyRequest().authenticated()
+        );
+
+        // to show H2 in browser
         http.headers().frameOptions().disable();
 
-        // add JWT filter before UsernamePasswordAuthenticationFilter
+        // adding JWT check filter before default one
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
