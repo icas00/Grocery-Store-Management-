@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+/**
+ * Represents a product in the store.
+ */
 @Entity
 @Table(name = "products")
 @Data
@@ -28,4 +31,9 @@ public class Product {
 
     @Column(nullable = false)
     private Integer stockQuantity;
+
+    // Used for soft deletes.
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isAvailable = true;
 }

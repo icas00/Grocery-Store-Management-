@@ -3,6 +3,10 @@ package grocery.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Represents a user role (e.g., 'ROLE_CUSTOMER', 'ROLE_ADMIN').
+ * Used for authorization.
+ */
 @Entity
 @Table(name = "roles")
 @Data
@@ -14,7 +18,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Role name, e.g. ROLE_ADMIN, ROLE_CUSTOMER
+    // Role name must be unique.
     @Column(nullable = false, unique = true)
     private String name;
 }

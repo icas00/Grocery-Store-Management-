@@ -6,6 +6,10 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a user in the application.
+ * Stores credentials and roles.
+ */
 @Entity
 @Table(name = "users")
 @Data
@@ -20,13 +24,15 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    // Password is encrypted.
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 100)
     private String email;
 
-    // User can have multiple roles
+    // A user can have multiple roles.
+    // EAGER fetch means roles are loaded with the user.
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
