@@ -9,11 +9,13 @@ import grocery.entity.User;
 import grocery.exception.CustomException;
 import grocery.repository.RoleRepository;
 import grocery.repository.UserRepository;
+import grocery.security.CustomUserDetailsService; // Added this import
 import grocery.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService; // Inject CustomUserDetailsService
 
     // Handles the user login process.
     @Override
@@ -49,8 +52,10 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Invalid username or password");
         }
 
+        // Load UserDetails to pass to JwtUtil for token generation (including roles).
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
         // If successful, generate a JWT token.
-        String token = jwtUtil.generateToken(loginRequest.getUsername());
+        String token = jwtUtil.generateToken(userDetails);
         return new AuthResponse(token);
     }
 
