@@ -6,13 +6,16 @@ import grocery.entity.Product;
 import grocery.exception.ResourceNotFoundException;
 import grocery.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of ProductService to handle product CRUD operations.
+ * Implementation of ProductService.
+ * Handles product CRUD operations.
  */
 @Service
 @RequiredArgsConstructor
@@ -20,9 +23,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
-    /**
-     * Create a new product.
-     */
+    // Creates a new product.
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
         Product product = mapToEntity(productDTO);
@@ -30,9 +31,7 @@ public class ProductServiceImpl implements ProductService {
         return mapToDTO(savedProduct);
     }
 
-    /**
-     * Update existing product.
-     */
+    // Updates an existing product.
     @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         Product product = productRepository.findById(productId)
@@ -42,24 +41,32 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(productDTO.getCategory());
         product.setPrice(productDTO.getPrice());
         product.setStockQuantity(productDTO.getStockQuantity());
+        product.setAvailable(productDTO.isAvailable());
 
         Product updatedProduct = productRepository.save(product);
         return mapToDTO(updatedProduct);
     }
 
-    /**
-     * Delete product by id.
-     */
+    // Soft-deletes a product by marking it as unavailable.
     @Override
     public void deleteProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
-        productRepository.delete(product);
+        product.setAvailable(false);
+        productRepository.save(product);
     }
 
-    /**
-     * Get product by id.
-     */
+    // Hard-deletes a product (removes permanently from DB).
+    @Override
+    public void hardDeleteProduct(Long productId) {
+        // Check if product exists before deleting.
+        if (!productRepository.existsById(productId)) {
+            throw new ResourceNotFoundException("Product", "id", productId);
+        }
+        productRepository.deleteById(productId);
+    }
+
+    // Gets a product by its ID.
     @Override
     public ProductDTO getProductById(Long productId) {
         Product product = productRepository.findById(productId)
@@ -67,20 +74,26 @@ public class ProductServiceImpl implements ProductService {
         return mapToDTO(product);
     }
 
-    /**
-     * Get all products.
-     */
+    // Gets all products with optional filtering and pagination.
+    // Conditionally includes unavailable products based on the flag.
     @Override
-    public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<ProductDTO> getAllProducts(String search, String category, Pageable pageable, boolean includeUnavailable) {
+        String productNameSearch = (search == null) ? "" : search;
+        String categorySearch = (category == null) ? "" : category;
+
+        Page<Product> products;
+        if (includeUnavailable) {
+            products = productRepository.findByProductNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+                    productNameSearch, categorySearch, pageable);
+        } else {
+            products = productRepository.findByIsAvailableTrueAndProductNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+                    productNameSearch, categorySearch, pageable);
+        }
+        
+        return products.map(this::mapToDTO);
     }
 
-    /**
-     * Map Product entity to ProductDTO.
-     */
+    // Helper to map a Product entity to a DTO.
     private ProductDTO mapToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setProductId(product.getProductId());
@@ -88,18 +101,19 @@ public class ProductServiceImpl implements ProductService {
         dto.setCategory(product.getCategory());
         dto.setPrice(product.getPrice());
         dto.setStockQuantity(product.getStockQuantity());
+        dto.setAvailable(product.isAvailable());
         return dto;
     }
 
-    /**
-     * Map ProductDTO to entity.
-     */
+    // Helper to map a ProductDTO to an entity.
     private Product mapToEntity(ProductDTO dto) {
         return Product.builder()
+                .productId(dto.getProductId())
                 .productName(dto.getProductName())
                 .category(dto.getCategory())
                 .price(dto.getPrice())
                 .stockQuantity(dto.getStockQuantity())
+                .isAvailable(dto.isAvailable())
                 .build();
     }
 }
