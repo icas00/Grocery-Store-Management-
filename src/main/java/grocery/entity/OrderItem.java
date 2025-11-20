@@ -5,6 +5,10 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+/**
+ * Represents a single item within an order.
+ * Captures the product, quantity, and price at the time of purchase.
+ */
 @Entity
 @Table(name = "order_items")
 @Data
@@ -17,21 +21,21 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
 
-    // Which order this item belongs to
+    // The order this item belongs to.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    // Product ordered
+    // The product that was ordered.
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // Quantity ordered
+    // Quantity ordered.
     @Column(nullable = false)
     private Integer quantity;
 
-    // Price at time of order
+    // Price at the time of the order.
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 }

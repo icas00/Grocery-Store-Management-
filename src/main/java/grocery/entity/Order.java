@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Represents a customer's order.
+ */
 @Entity
 @Table(name = "orders")
 @Data
@@ -17,9 +20,9 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
+    private Long id;
 
-    // Customer who placed the order
+    // The customer who placed the order.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -30,10 +33,16 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    // List of items in this order.
+    // CascadeType.ALL means order items are deleted if the order is.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 
-    // Order status (e.g., CREATED, PAID, CANCELLED)
+    // e.g., "CREATED", "PAID", "CANCELLED"
     @Column(nullable = false)
     private String status;
+
+    // The ID of the order from Razorpay.
+    @Column(unique = true)
+    private String razorpayOrderId;
 }
